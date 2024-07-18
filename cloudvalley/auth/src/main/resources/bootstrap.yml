@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: auth
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      config:
+        file-extension: yml
+        namespace: dev
+        group: dev
+
+      discovery:
+        server-addr: localhost:8848
+        namespace: dev
+        group: dev
+
+  main:
+    allow-bean-definition-overriding: true
