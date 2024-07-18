@@ -1,0 +1,47 @@
+<configuration>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <!--    日志存放位置-->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%clr(%date){faint} %clr(%-5level){magenta} [%thread] %clr(%logger{10}){cyan}\(%F:%L\\) %highlight(%msg) %n"/>
+    <property name="CONSOLE_LOG_PATTERN_NO_COLOR"
+              value="%date %-5level [%thread] %logger{10} %msg %n"/>
+
+    <!-- 定义输出到控制台的日志配置 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="STDOUT_NO_COLOR" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN_NO_COLOR}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 定义输出到文件的日志配置 -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/auth.logback</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/gateway-%d{yyyy-MM-dd}.%i.logback</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern><![CDATA[%date %level [%thread] %logger{10} [%file:%line] %msg%n]]></pattern>
+        </encoder>
+    </appender>
+
+    <!--    定义根日志级别-->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING"/>
+    </root>
+
+    <logger name="org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener" level="info"/>
+    <logger name="cn.cloudvalley.gateway" level="debug"/>
+    <logger name="cn.cloudvalley.core.mapper.ClassesMapper" level="info"/>
+    <logger name="cn.cloudvalley.core.entity.student.Result" level="info"/>
+</configuration>

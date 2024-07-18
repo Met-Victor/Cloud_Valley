@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.post.mapper.TagMapper">
+
+    <select id="getPostTagInfo" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(b.name SEPARATOR ',')
+        FROM post_tag a
+        LEFT JOIN tag b ON a.tag_id = b.id
+        WHERE post_id = #{postId} AND b.tag = 0
+    </select>
+
+    <select id="selectTagNameByPostIds" resultType="cn.com.core.post.dto.PostTagNameDTO">
+        SELECT a.id AS postId, CASE WHEN b.tag_names IS NULL THEN '' ELSE b.tag_names END AS tagNames
+        FROM (
+            SELECT id FROM post WHERE id IN
+            <foreach item="item" index="index" collection="postIdList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        ) a
+        LEFT JOIN (
+            SELECT post_id, GROUP_CONCAT(b.name SEPARATOR ',') AS tag_names
+            FROM post_tag a
+            LEFT JOIN tag b ON a.tag_id = b.id
+            WHERE a.post_id IN
+            <foreach item="item" index="index" collection="postIdList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            GROUP BY post_id
+        ) b ON a.id = b.post_id
+    </select>
+    <select id="getPostTagIdList" resultType="java.lang.String">
+        select t2.tag_id
+        from tag t1
+                 left join post_tag t2 on t1.id = t2.tag_id
+        where post_id = #{postId}
+    </select>
+
+</mapper>

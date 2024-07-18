@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.post.mapper.CommentMapper">
+
+    <select id="getFirstLevelComments" resultType="cn.com.core.post.vo.CommentVO">
+        select a.*, b.nickname as nickname, b.avatar as avatar
+        from comment a
+        left join cloud_valley_system.user b
+        on a.user_id = b.id
+        where a.post_id = #{postId} and a.parent_id is null
+        order by a.create_time
+    </select>
+
+    <select id="getSecondLevelComments" resultType="cn.com.core.post.vo.CommentVO">
+        select a.*, b.nickname as nickname, b.avatar as avatar, d.nickname as replyUser
+        from comment a
+        left join cloud_valley_system.user b
+            on a.user_id = b.id
+        left join comment c
+            on a.parent_id = c.id <!-- 可以查出当前二级评论的父评论的用户名 -->
+        left join cloud_valley_system.user d
+            on c.user_id = d.id
+        where a.root_id = #{rootId}
+        order by a.create_time
+    </select>
+</mapper>

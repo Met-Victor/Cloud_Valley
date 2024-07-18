@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.post.mapper.PostMapper">
+
+    <select id="userPage" resultType="cn.com.core.post.po.Post">
+        SELECT a.id,a.user_id,a.category_id,a.cover,a.title,a.description,a.views,a.likes,a.favorites,a.create_time,a.update_time
+        FROM post a
+        <choose>
+            <!-- 我点赞的帖子 -->
+            <when test="queryDTO.type != null and queryDTO.type == 'like'">
+                inner join `like` b on a.id = b.post_id
+                and b.user_id = #{queryDTO.userId}
+            </when>
+            <!-- 我收藏的帖子 -->
+            <when test="queryDTO.type != null and queryDTO.type == 'favorite'">
+                inner join `favorite` b on a.id = b.post_id
+                and b.user_id = #{queryDTO.userId}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+        WHERE
+            a.tag = 0
+            <if test="queryDTO.type != null and queryDTO.type == 'publish'">
+                AND a.user_id = #{queryDTO.userId}
+            </if>
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="queryAuthorStatistics" resultType="java.util.Map">
+        SELECT
+            ( SELECT count(id) FROM `post` WHERE user_id = #{userId} ) posts,
+            ( SELECT count(id) FROM `follow` WHERE noticer = #{userId} ) fans,
+            ( SELECT count(id) FROM `follow` WHERE user_id = #{userId} ) follows
+    </select>
+
+    <select id="page" resultType="cn.com.core.post.po.Post">
+        SELECT id,user_id,category_id,cover,title,description,views,likes,favorites,create_time,update_time
+        FROM post
+        WHERE
+            tag = 0
+            <if test="queryDTO.title != null and queryDTO.title != ''">
+                AND title LIKE CONCAT('%', #{queryDTO.title}, '%')
+            </if>
+            <if test="queryDTO.categoryId != null and queryDTO.categoryId != ''">
+                AND category_id = #{queryDTO.categoryId}
+            </if>
+                AND is_lock=0
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
